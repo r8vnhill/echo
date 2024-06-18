@@ -1,0 +1,2 @@
+cd echoLib
+git init
