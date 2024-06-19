@@ -1,0 +1,2 @@
+# Unix
+./gradlew :echoLib:publish

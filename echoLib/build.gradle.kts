@@ -4,6 +4,7 @@ plugins {
     id("io.gitlab.arturbosch.detekt")
     id("org.jetbrains.dokka")
     kotlin("jvm")
+    `maven-publish`
 }
 
 val dokkaVersion = extra["dokka.version"] as String
@@ -29,7 +30,8 @@ val dokkaJar by tasks.registering(Jar::class) {
 }
 
 val sourcesJar by tasks.registering(Jar::class) {
-    dependsOn("jar")
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
 }
 
 tasks.register("releaseLocal") {
@@ -38,4 +40,32 @@ tasks.register("releaseLocal") {
 
 kotlin {
     jvmToolchain(17)
+}
+
+/* ... */
+tasks.withType<GenerateModuleMetadata>().configureEach {
+    dependsOn(sourcesJar)
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            groupId = "cl.ravenhill"
+            artifactId = "echolib"
+            version = project.version.toString()
+            from(components["kotlin"])
+            artifact(sourcesJar.get())
+            artifact(dokkaJar.get())
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/r8vnhill/echo")
+            credentials {
+                username = System.getenv("GITHUB_USER")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
 }

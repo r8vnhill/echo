@@ -8,9 +8,14 @@ application {
     mainClass.set("cl.ravenhill.echo.EchoKt")
 }
 
+/* ... */
 repositories {
-    flatDir {
-        dirs("libs")
+    maven {
+        url = uri("https://maven.pkg.github.com/r8vnhill/echo")
+        credentials {
+            username = System.getenv("GITHUB_USER")
+            password = System.getenv("GITHUB_TOKEN")
+        }
     }
 }
 
@@ -32,8 +37,9 @@ tasks.register<Jar>("fatJar") {
             .map { zipTree(it) }
     })
 }
+
 dependencies {
-    implementation(fileTree("libs") { include("*.jar") })
+    implementation("cl.ravenhill:echolib:1.0.1")
 }
 
 kotlin {
